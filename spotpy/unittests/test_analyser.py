@@ -495,6 +495,12 @@ class TestAnalyser(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main(exit=False)
     try:
+        FileNotFoundError
+    except NameError:
+        # py2
+        FileNotFoundError = IOError
+
+    try:
         os.remove("RosenMC.csv")
         os.remove("setup_griewank_pickle")
         os.remove("test_plot_autocorellation.csv")
