@@ -498,7 +498,7 @@ if __name__ == '__main__':
         FileNotFoundError
     except NameError:
         # py2
-        FileNotFoundError = IOError
+        FileNotFoundError = OSError
 
     try:
         os.remove("RosenMC.csv")
