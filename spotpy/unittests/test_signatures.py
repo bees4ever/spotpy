@@ -13,7 +13,7 @@ import spotpy.signatures as sig
 #from spotpy.examples.spot_setup_hymod_python import spot_setup
 from spotpy.examples.spot_setup_hymod_python import spot_setup
 import numpy as np
-import os
+from spotpy.signatures import HydroSignaturesError
 
 try:
     import pandas as pd
@@ -23,7 +23,6 @@ except ImportError:
     test = False
 
 #https://docs.python.org/3/library/unittest.html
-
 
 
 class TestSignatures(unittest.TestCase):
@@ -53,7 +52,6 @@ class TestSignatures(unittest.TestCase):
         self.assertEqual(type(float(sig_val)), type(1.0))
         self.assertEqual(type(float(sig_raw)), type(1.0))
         self.assertEqual(type(float(sig_dev)), type(1.0))
-
 
     def test_getAverageFloodOverflowPerSection(self):
         if self.usepandas:
@@ -175,14 +173,23 @@ class TestSignatures(unittest.TestCase):
                 sig_val = sig.getAverageFloodFrequencyPerSection(self.simulation, self.observation, datetime_series=self.dd_daily, threshold_value=th,
                                                            mode="get_signature")
 
-                sig_raw = sig.getAverageFloodFrequencyPerSection(self.simulation, self.observation, datetime_series=self.dd_daily, threshold_value=th,
-                                                           mode="get_raw_data")
 
-                sig_dev = sig.getAverageFloodFrequencyPerSection(self.simulation, self.observation, datetime_series=self.dd_daily, threshold_value=th,
+                try:
+                    sig_raw = sig.getAverageFloodFrequencyPerSection(self.simulation, self.observation,
+                                                                datetime_series=pd.date_range(start="2015-05-01",
+                                                                end="2115-05-01"), threshold_value=th, mode="get_raw_data")
+
+                    self.assertEqual(sig_raw["flood"].__len__(), 99)
+                    self.assertEqual(sig_raw.dtypes[0], "float64")
+                except HydroSignaturesError as e:
+                    print("A HydroSignaturesError occurred: " + str(e))
+
+                sig_dev = sig.getAverageFloodFrequencyPerSection(self.simulation, self.observation, datetime_series=
+                        pd.date_range(start="2015-05-01",  periods=len(self.simulation), freq="1S"), threshold_value=th,
                                                        mode="calc_Dev")
 
-                self.assertEqual(sig_raw.dtypes[0], "float64")
-                self.assertEqual(sig_raw["flood"].__len__(), 99)
+
+
 
                 #self.assertEqual(str(type(sig_raw.index.tolist()[0])), "<class 'pandas.tslib.Timestamp'>")
 
@@ -198,7 +205,9 @@ class TestSignatures(unittest.TestCase):
                                               mode="get_signature")
                 sig_raw = sig.getAverageFloodDuration(self.simulation, self.observation, datetime_series=self.dd_daily, threshold_value=th,
                                               mode="get_raw_data")
-                sig_dev = sig.getAverageFloodDuration(self.simulation, self.observation, datetime_series=self.dd_daily, threshold_value=th,
+
+                # https://pandas.pydata.org/pandas-docs/stable/timeseries.html#timeseries-offset-aliases
+                sig_dev = sig.getAverageFloodDuration(self.simulation, self.observation, datetime_series=pd.date_range(start="2015-05-01",  periods=len(self.simulation), freq="A"), threshold_value=th,
                                               mode="calc_Dev")
 
                 self.assertEqual(sig_raw.dtypes[0], "float64")
