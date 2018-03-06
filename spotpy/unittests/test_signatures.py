@@ -203,7 +203,7 @@ class TestSignatures(unittest.TestCase):
                 th = th + np.random.uniform(-1, 1, 1)[0]
                 sig_val = sig.getAverageFloodDuration(self.simulation, self.observation, datetime_series=self.dd_daily, threshold_value=th,
                                               mode="get_signature")
-                sig_raw = sig.getAverageFloodDuration(self.simulation, self.observation, datetime_series=self.dd_daily, threshold_value=th,
+                sig_raw = sig.getAverageFloodDuration(self.simulation, self.observation, datetime_series=pd.date_range(start="2015-05-01",  periods=len(self.simulation), freq="S"), threshold_value=th,
                                               mode="get_raw_data")
 
                 # https://pandas.pydata.org/pandas-docs/stable/timeseries.html#timeseries-offset-aliases
@@ -413,6 +413,28 @@ class TestSignatures(unittest.TestCase):
             self.assertEqual(type(1.0), type(float(sig_sig_1)))
             self.assertEqual(type({}), type(sig_sig_2))
             self.assertEqual(type(1.0), type(float(sig_dev)))
+
+
+    def test_exceptions(self):
+        try:
+            df2 = pd.DataFrame(np.random.randn(10, 5))
+            sig_dev = sig.getAverageBaseflowFrequencyPerSection(self.simulation, self.observation, datetime_series=df2, mode="calc_Dev")
+            self.assertEqual(type(sig_dev), type(1.0))
+        except HydroSignaturesError as e:
+            print("A HydroSignaturesError occurred: " + str(e))
+
+
+        try:
+            df2 = pd.DataFrame(np.random.randn(10, 5))
+            sig_dev = sig.getAverageBaseflowFrequencyPerSection(self.simulation, None, datetime_series=self.dd_daily, mode="calc_Dev")
+            self.assertEqual(type(sig_dev), type(1.0))
+        except HydroSignaturesError as e:
+            print("A HydroSignaturesError occurred: " + str(e))
+
+
+
+
+
 
 if __name__ == '__main__':
     if test==True: # Happens if Pandas can be imported (not on travis so far)
