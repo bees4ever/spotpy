@@ -156,7 +156,12 @@ class TestSignatures(unittest.TestCase):
         self.assertEqual(type(1.0), type(float(sig.getQ85(self.simulation, None, mode="get_raw_data"))))
         self.assertEqual(type(1.0), type(float(sig.getQ85(self.simulation, self.observation, mode="calc_Dev"))))
 
-
+    def test_getQ95(self):
+        self.assertEqual(type(1.0), type(float(sig.getQ95(self.simulation, self.observation, mode="get_signature"))))
+        self.assertEqual(type(1.0), type(float(sig.getQ95(self.simulation, None, mode="get_signature"))))
+        self.assertEqual(type(1.0), type(float(sig.getQ95(self.simulation, self.observation, mode="get_raw_data"))))
+        self.assertEqual(type(1.0), type(float(sig.getQ95(self.simulation, None, mode="get_raw_data"))))
+        self.assertEqual(type(1.0), type(float(sig.getQ95(self.simulation, self.observation, mode="calc_Dev"))))
 
     def test_getQ99(self):
         self.assertEqual(type(1.0), type(float(sig.getQ99(self.simulation, self.observation, mode="get_signature"))))
@@ -464,6 +469,30 @@ class TestSignatures(unittest.TestCase):
 
         try:
             sig._SignaturesBasicFunctionality.calcDev(None, None)
+        except HydroSignaturesError as e:
+            print("A HydroSignaturesError occurred: " + str(e))
+
+
+        try:
+            sig.getAverageFloodOverflowPerSection(self.simulation, self.observation[1:40], mode="calc_Dev")
+        except HydroSignaturesError as e:
+            print("A HydroSignaturesError occurred: " + str(e))
+
+        try:
+            sig.getAverageFloodFrequencyPerSection(self.simulation, self.observation, mode="calc_Dev")
+        except HydroSignaturesError as e:
+            print("A HydroSignaturesError occurred: " + str(e))
+
+
+        try:
+            sig.getAverageFloodDuration(self.simulation, self.observation, mode="calc_Dev")
+        except HydroSignaturesError as e:
+            print("A HydroSignaturesError occurred: " + str(e))
+
+
+        try:
+            sig.getAverageFloodDuration(self.simulation, self.observation[1:40], mode="calc_Dev",
+                                        datetime_series=self.ddd)
         except HydroSignaturesError as e:
             print("A HydroSignaturesError occurred: " + str(e))
 
