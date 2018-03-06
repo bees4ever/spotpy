@@ -416,8 +416,8 @@ class TestSignatures(unittest.TestCase):
 
 
     def test_exceptions(self):
+        df2 = pd.DataFrame(np.random.randn(10, 1))
         try:
-            df2 = pd.DataFrame(np.random.randn(10, 5))
             sig_dev = sig.getAverageBaseflowFrequencyPerSection(self.simulation, self.observation, datetime_series=df2, mode="calc_Dev")
             self.assertEqual(type(sig_dev), type(1.0))
         except HydroSignaturesError as e:
@@ -429,8 +429,43 @@ class TestSignatures(unittest.TestCase):
         except HydroSignaturesError as e:
             print("A HydroSignaturesError occurred: " + str(e))
 
-        sig_dev = sig.getSlopeFDC([], [])
-        self.assertEqual(sig_dev, 0.0)
+
+        sig.getAverageFloodOverflowPerSection(self.simulation, self.observation, mode="calc_Dev",
+                                                        datetime_series= pd.date_range(start="2015-05-01",  periods=
+                                                        len(self.simulation), freq="1M"))
+
+        sig.getAverageFloodOverflowPerSection(self.simulation, self.observation, mode="calc_Dev",
+                                              datetime_series=pd.date_range(start="2015-05-01", periods=
+                                              len(self.simulation), freq="2A"))
+
+        try:
+            D = pd.date_range(start="2015-05-01", periods=50 , freq="1S")
+            D = D.append(pd.date_range(start="2014-05-01", periods=49, freq="T"))
+
+            sig.getAverageFloodOverflowPerSection(self.simulation, self.observation, mode="calc_Dev", datetime_series=D)
+
+        except HydroSignaturesError as e:
+            print("A HydroSignaturesError occurred: " + str(e))
+
+
+        try:
+            sig.getAverageFloodOverflowPerSection(self.simulation, self.observation[1:40], mode="calc_Dev",
+                                                  datetime_series=self.ddd)
+        except HydroSignaturesError as e:
+            print("A HydroSignaturesError occurred: " + str(e))
+
+
+        try:
+            sig_dev = sig.getSlopeFDC([], [], mode = "wrong")
+            self.assertEqual(sig_dev, 0.0)
+
+        except ValueError as e:
+            print("A ValueError occurred: " + str(e))
+
+        try:
+            sig._SignaturesBasicFunctionality.calcDev(None, None)
+        except HydroSignaturesError as e:
+            print("A HydroSignaturesError occurred: " + str(e))
 
 
 
