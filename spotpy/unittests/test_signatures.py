@@ -425,11 +425,13 @@ class TestSignatures(unittest.TestCase):
 
 
         try:
-            df2 = pd.DataFrame(np.random.randn(10, 5))
             sig_dev = sig.getAverageBaseflowFrequencyPerSection(self.simulation, None, datetime_series=self.dd_daily, mode="calc_Dev")
-            self.assertEqual(type(sig_dev), type(1.0))
         except HydroSignaturesError as e:
             print("A HydroSignaturesError occurred: " + str(e))
+
+        sig_dev = sig.getSlopeFDC([], [])
+        self.assertEqual(sig_dev, 0.0)
+
 
 
 
