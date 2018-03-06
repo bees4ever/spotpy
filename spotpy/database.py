@@ -110,14 +110,25 @@ class database(object):
         self.header.extend(['par{0}'.format(x) for x in parnames])
         #print(self.singular_data_lens[2])
         #print(type(self.singular_data_lens[2]))        
+        self.header_simulations = []
         if self.save_sim:
-            for i in range(len(simulations)):
-                if type(simulations[0]) == type([]) or type(simulations[0]) == type(np.array([])):
-                    for j in range(len(simulations[i])):
-                        self.header.extend(['simulation' + str(i+1)+'_'+str(j+1)])
-                else:
-                    self.header.extend(['simulation' + '_'+str(i)])
-                                    #for x in product(*self._tuple_2_xrange(self.singular_data_lens[2]))])
+            if isinstance(self, sql):
+                if len(simulations) > 0:
+                    if type(simulations[0]) == type([]) or type(simulations[0]) == type(np.array([])):
+                        for i in range(1,len(simulations)+1):
+                            self.header_simulations.extend(['simulation' + '_' + str(i)])
+                    else:
+                        self.header_simulations.extend(['simulation' + '_' + str(1)])
+
+
+            else:
+                for i in range(len(simulations)):
+                    if type(simulations[0]) == type([]) or type(simulations[0]) == type(np.array([])):
+                        for j in range(len(simulations[i])):
+                            self.header.extend(['simulation' + str(i+1)+'_'+str(j+1)])
+                    else:
+                        self.header.extend(['simulation' + '_'+str(i)])
+
 
         self.header.append('chain')
 
@@ -263,6 +274,11 @@ class sql(database):
 #                     (like1 real, parx real, pary real, simulation1 real, chain int)''')
         self.db_cursor.execute('''CREATE TABLE IF NOT EXISTS  '''+self.dbname+'''
                      ('''+' real ,'.join(self.header)+''')''')
+
+        for h in self.header_simulations:
+            self.db_cursor.execute('''CREATE TABLE IF NOT EXISTS  ''' + self.dbname + "_" + str(h) + '''
+                                 (''' + ' real ,'.join(["id", str(h), ""]) + ''')''')
+
 
     def save(self, objectivefunction, parameterlist, simulations=None, chains=1):
         coll = (self.dim_dict['like'](objectivefunction) +
